@@ -3,17 +3,13 @@ name: Deploy to Render and Notify GitHub
 on:
   push:
     branches:
-      - main  # Change this if you deploy from another branch
+      - main
 
 jobs:
   render-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Optional: checkout repo
-      # - name: Checkout repository
-      #   uses: actions/checkout@v4
-
       - name: Notify GitHub of Deployment
         id: deployment
         uses: chrnorm/deployment-action@v2
@@ -28,9 +24,14 @@ jobs:
         id: render
         run: |
           echo "Triggering Render deploy..."
-          response=$(curl -s -X POST https://api.render.com/deploy/srv-d1hs5cripnbc73fk74tg?key=Rrw8YHhuRYI)
+          response=$(curl -s -X POST "https://api.render.com/deploy/srv-d1hs5cripnbc73fk74tg?key=Rrw8YHhuRYI")
           echo "Response: $response"
-          deploy_id=$(echo "$response" | jq -r '.deploy.id')
+
+          deploy_id=$(echo "$response" | jq -r '.deploy.id // empty')
+          if [ -z "$deploy_id" ]; then
+            echo "❌ Could not extract deploy ID. Exiting."
+            exit 1
+          fi
           echo "RENDER_DEPLOY_ID=$deploy_id" >> $GITHUB_ENV
 
       - name: Wait for Render Deploy to Complete
@@ -38,8 +39,9 @@ jobs:
           echo "Waiting for Render deployment to finish..."
           for i in {1..20}; do
             status=$(curl -s -H "Authorization: Bearer Rrw8YHhuRYI" \
-              https://api.render.com/v1/deploys/$RENDER_DEPLOY_ID | jq -r '.status')
+              https://api.render.com/v1/deploys/$RENDER_DEPLOY_ID | jq -r '.status // "unknown"')
             echo "[$i] Status: $status"
+
             if [[ "$status" == "live" ]]; then
               echo "✅ Render deployment successful"
               exit 0
@@ -57,13 +59,14 @@ jobs:
         uses: chrnorm/deployment-status@v2
         with:
           token: ${{ secrets.DEPLOY_PAT }}
-          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
           state: success
+          environment-url: https://geoclock.onrender.com
 
       - name: Mark Deployment as Failed on GitHub
         if: failure()
         uses: chrnorm/deployment-status@v2
         with:
           token: ${{ secrets.DEPLOY_PAT }}
-          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
           state: failure
