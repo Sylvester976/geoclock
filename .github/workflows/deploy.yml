@@ -10,17 +10,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Optional: uncomment if you need source files
+      # Optional: uncomment if you need to access repo files
       # - name: Checkout repository
       #   uses: actions/checkout@v4
 
       - name: Notify GitHub of Deployment
-        id: deployment    # <-- Added id to reference outputs
+        id: deployment
         uses: chrnorm/deployment-action@v2
         with:
           token: ${{ secrets.DEPLOY_PAT }}
           environment: production
           description: "Starting deployment to Render"
+          transient_environment: true       # Mark as temporary
+          auto_inactive: true               # Inactivate old deployments
 
       - name: Debug deployment_id output
         run: echo "deployment_id: ${{ steps.deployment.outputs.deployment_id }}"
@@ -28,7 +30,7 @@ jobs:
       - name: Trigger Render Deploy
         run: |
           curl -X POST https://api.render.com/deploy/srv-d1hs5cripnbc73fk74tg?key=Rrw8YHhuRYI
-          
+
       - name: Mark Deployment as Successful
         uses: chrnorm/deployment-status@v2
         with:
