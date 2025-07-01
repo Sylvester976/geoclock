@@ -10,5 +10,6 @@ path('users/', include('users.urls')),
 path('attendance/', include('attendance.urls')),
 path('reporting/', include('reporting.urls')),
 path('worklocations/', include('worklocations.urls')),
+path('companies/', include('companies.urls')),
 
 ]
