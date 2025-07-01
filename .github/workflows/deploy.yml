@@ -1,15 +1,39 @@
-      - name: Mark Deployment as Successful on GitHub
-        if: success()
+name: Deploy to Render and Notify GitHub
+
+on:
+  push:
+    branches:
+      - main  # Change this if you deploy from another branch
+
+jobs:
+  render-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Optional: uncomment if you need to access repo files
+      # - name: Checkout repository
+      #   uses: actions/checkout@v4
+
+      - name: Notify GitHub of Deployment
+        id: deployment
+        uses: chrnorm/deployment-action@v2
+        with:
+          token: ${{ secrets.DEPLOY_PAT }}
+          environment: production
+          description: "Starting deployment to Render"
+          transient_environment: true
+          auto_inactive: true
+
+      - name: Debug deployment_id output
+        run: echo "deployment_id: ${{ steps.deployment.outputs.deployment_id }}"
+
+      - name: Trigger Render Deploy
+        run: |
+          curl -X POST https://api.render.com/deploy/srv-d1hs5cripnbc73fk74tg?key=Rrw8YHhuRYI
+
+      - name: Mark Deployment as Successful
         uses: chrnorm/deployment-status@v2
         with:
           token: ${{ secrets.DEPLOY_PAT }}
           deployment-id: ${{ steps.deployment.outputs.deployment_id }}
           state: success
-
-      - name: Mark Deployment as Failed on GitHub
-        if: failure()
-        uses: chrnorm/deployment-status@v2
-        with:
-          token: ${{ secrets.DEPLOY_PAT }}
-          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
-          state: failure
