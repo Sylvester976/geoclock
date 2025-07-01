@@ -1,0 +1,29 @@
+name: Mark Deployment as Successful
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  mark-deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify GitHub of Deployment
+        id: deployment
+        uses: chrnorm/deployment-action@v2
+        with:
+          token: ${{ secrets.DEPLOY_PAT }}
+          environment: production
+          description: "Render auto-deploys on push to main"
+          transient_environment: true
+          auto_inactive: true
+
+      - name: Mark Deployment as Successful
+        if: ${{ steps.deployment.outputs.deployment_id != '' }}
+        uses: chrnorm/deployment-status@v2
+        with:
+          token: ${{ secrets.DEPLOY_PAT }}
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+          state: success
+          environment-url: https://geoclock.onrender.com
