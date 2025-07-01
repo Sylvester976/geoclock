@@ -26,8 +26,13 @@ jobs:
           echo "Triggering Render deploy..."
           response=$(curl -s -X POST "https://api.render.com/deploy/srv-d1hs5cripnbc73fk74tg?key=Rrw8YHhuRYI")
           echo "Response: $response"
-
-          deploy_id=$(echo "$response" | jq -r '.deploy.id // empty')
+          # Check if response is valid JSON and extract deploy ID
+          if echo "$response" | jq -e . >/dev/null 2>&1; then
+            deploy_id=$(echo "$response" | jq -r '.deploy.id // empty')
+          else
+            echo "❌ Response is not valid JSON: $response"
+            exit 1
+          fi
           if [ -z "$deploy_id" ]; then
             echo "❌ Could not extract deploy ID. Exiting."
             exit 1
@@ -38,10 +43,15 @@ jobs:
         run: |
           echo "Waiting for Render deployment to finish..."
           for i in {1..20}; do
-            status=$(curl -s -H "Authorization: Bearer Rrw8YHhuRYI" \
-              https://api.render.com/v1/deploys/$RENDER_DEPLOY_ID | jq -r '.status // "unknown"')
+            status_response=$(curl -s -H "Authorization: Bearer Rrw8YHhuRYI" \
+              https://api.render.com/v1/deploys/$RENDER_DEPLOY_ID)
+            echo "Status Response: $status_response"
+            if echo "$status_response" | jq -e '.status' >/dev/null 2>&1; then
+              status=$(echo "$status_response" | jq -r '.status // "unknown"')
+            else
+              status="unknown"
+            fi
             echo "[$i] Status: $status"
-
             if [[ "$status" == "live" ]]; then
               echo "✅ Render deployment successful"
               exit 0
