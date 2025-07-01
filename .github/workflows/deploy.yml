@@ -1,0 +1,22 @@
+name: Deploy to Render and Notify GitHub
+
+on:
+  push:
+    branches:
+      - main  # Change this if you deploy from another branch
+
+jobs:
+  render-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Notify GitHub of Deployment
+        uses: chrnorm/deployment-action@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          environment: production
+          description: "Starting deployment to Render"
+      
+      - name: Trigger Render Deploy
+        run: |
+          curl -X POST https://api.render.com/deploy/srv-d1hs5cripnbc73fk74tg?key=Rrw8YHhuRYI
