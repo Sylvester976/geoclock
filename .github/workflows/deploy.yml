@@ -13,7 +13,7 @@ jobs:
       - name: Notify GitHub of Deployment
         uses: chrnorm/deployment-action@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.DEPLOY_PAT }}
           environment: production
           description: "Starting deployment to Render"
       
