@@ -20,3 +20,10 @@ jobs:
       - name: Trigger Render Deploy
         run: |
           curl -X POST https://api.render.com/deploy/srv-d1hs5cripnbc73fk74tg?key=Rrw8YHhuRYI
+          
+      - name: Mark Deployment as Successful
+        uses: chrnorm/deployment-status@v2
+        with:
+          token: ${{ secrets.DEPLOY_PAT }}
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          state: success
