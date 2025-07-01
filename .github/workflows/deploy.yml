@@ -26,11 +26,13 @@ jobs:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
         run: |
           echo "Triggering Render deploy..."
-          response=$(curl -s -X POST "https://api.render.com/deploy/srv-d1hs5cripnbc73fk74tg?key=$RENDER_API_KEY")
+          response=$(curl -s -X POST \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            "https://api.render.com/v1/services/srv-d1hs5cripnbc73fk74tg/deploys")
           echo "Response: $response"
           # Check if response is valid JSON and extract deploy ID
           if echo "$response" | jq -e . >/dev/null 2>&1; then
-            deploy_id=$(echo "$response" | jq -r '.deploy.id // empty')
+            deploy_id=$(echo "$response" | jq -r '.id // empty')
           else
             echo "❌ Response is not valid JSON: $response"
             exit 1
@@ -40,6 +42,7 @@ jobs:
             exit 1
           fi
           echo "RENDER_DEPLOY_ID=$deploy_id" >> $GITHUB_ENV
+          echo "Deploy ID: $deploy_id"
 
       - name: Wait for Render Deploy to Complete
         env:
@@ -48,7 +51,7 @@ jobs:
           echo "Waiting for Render deployment to finish..."
           for i in {1..20}; do
             status_response=$(curl -s -H "Authorization: Bearer $RENDER_API_KEY" \
-              https://api.render.com/v1/deploys/$RENDER_DEPLOY_ID)
+              "https://api.render.com/v1/deploys/$RENDER_DEPLOY_ID")
             echo "Status Response: $status_response"
             if echo "$status_response" | jq -e '.status' >/dev/null 2>&1; then
               status=$(echo "$status_response" | jq -r '.status // "unknown"')
