@@ -20,6 +20,15 @@ jobs:
           transient_environment: true
           auto_inactive: true
 
+      - name: Check Render API Key Presence
+        run: |
+          if [ -z "${{ secrets.RENDER_API_KEY }}" ]; then
+            echo "❌ RENDER_API_KEY secret is not set"
+            exit 1
+          else
+            echo "✅ RENDER_API_KEY secret is set"
+          fi
+
       - name: Trigger Render Deploy and Capture ID
         id: render
         env:
