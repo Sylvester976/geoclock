@@ -59,29 +59,6 @@ GeoClock is a web-based employee attendance system that uses geolocation to allo
 
 ---
 
-## 🧩 Key Models (Simplified)
-
-### `User` (custom)
-- Username, password, email, role
-- ForeignKey to `Company` (nullable for SuperAdmin)
-
-### `Company`
-- Name, contact details
-- Timestamped creation
-
-### `WorkLocation`
-- Latitude, Longitude, Radius (meters)
-- Assigned to company
-
-### `AttendanceLog`
-- Employee (FK to User)
-- Type (Clock-In / Clock-Out)
-- Timestamp
-- Captured coordinates
-- Status (within range or not)
-
----
-
 ## 🔄 Clock-In Workflow
 
 1. User logs in and accesses the clock-in page.
