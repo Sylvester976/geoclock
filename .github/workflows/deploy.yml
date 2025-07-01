@@ -11,6 +11,7 @@ jobs:
 
     steps:
       - name: Notify GitHub of Deployment
+        id: deployment
         uses: chrnorm/deployment-action@v2
         with:
           token: ${{ secrets.DEPLOY_PAT }}
