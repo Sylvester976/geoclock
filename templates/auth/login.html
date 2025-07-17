@@ -115,26 +115,28 @@
                 Swal.close(); // Close the "Processing..." modal
 
                 if (data.status === 'success') {
-                    const token = data.access;
-                    const user = data.user;
-
-                    // Store session-like data
-                    sessionStorage.setItem("access_token", token);
-                    sessionStorage.setItem("user", JSON.stringify(user));
+                    {#const token = data.access;#}
+                    {#const user = data.user;#}
+                    {##}
+                    {#// Store session-like data#}
+                    {#sessionStorage.setItem("access_token", token);#}
+                    {#sessionStorage.setItem("user", JSON.stringify(user));#}
 
                     Swal.fire({
                         icon: 'success',
                         title: 'Login Successful',
                         text: data.message
                     }).then(() => {
-                        const userData = JSON.parse(sessionStorage.getItem("user"));
-                         if (userData.role === 6)
-                         {
-                             window.location.href = "/staff/";
-                         }else
-                         {
-                             window.location.href = "/modules/";
-                         }
+                        {#const userData = JSON.parse(sessionStorage.getItem("user"));#}
+                        {# if (userData.role === 6)#}
+                        {# {#}
+                        {#     window.location.href = "/staff/";#}
+                        {# }else#}
+                        {# {#}
+                        {#     window.location.href = "/modules/";#}
+                        {# }#}
+
+                        window.location.href = "/companies/";
                     });
 
                 } else {
