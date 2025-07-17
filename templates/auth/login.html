@@ -36,9 +36,9 @@
                 <form class="login-form" id="loginForm" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label class="form-label">UPN</label>
-                        <input type="number" class="form-control" id="upn" name="upn"
-                               placeholder="Enter your payroll number" autocomplete="off" required>
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email"
+                               placeholder="Enter your Work Email" autocomplete="off" required>
                     </div>
                     <div class="mb-2">
                         <label class="form-label">
@@ -103,7 +103,7 @@
         const formData = new FormData(form);
         const csrfToken = form.querySelector('[name="csrfmiddlewaretoken"]').value;
 
-        fetch("", {
+        fetch("{% url 'authlogin' %}", {
             method: 'POST',
             headers: {
                 'X-CSRFToken': csrfToken
@@ -115,26 +115,28 @@
                 Swal.close(); // Close the "Processing..." modal
 
                 if (data.status === 'success') {
-                    const token = data.access;
-                    const user = data.user;
-
-                    // Store session-like data
-                    sessionStorage.setItem("access_token", token);
-                    sessionStorage.setItem("user", JSON.stringify(user));
+                    {#const token = data.access;#}
+                    {#const user = data.user;#}
+                    {##}
+                    {#// Store session-like data#}
+                    {#sessionStorage.setItem("access_token", token);#}
+                    {#sessionStorage.setItem("user", JSON.stringify(user));#}
 
                     Swal.fire({
                         icon: 'success',
                         title: 'Login Successful',
                         text: data.message
                     }).then(() => {
-                        const userData = JSON.parse(sessionStorage.getItem("user"));
-                         if (userData.role === 6)
-                         {
-                             window.location.href = "/staff/";
-                         }else
-                         {
-                             window.location.href = "/modules/";
-                         }
+                        {#const userData = JSON.parse(sessionStorage.getItem("user"));#}
+                        {# if (userData.role === 6)#}
+                        {# {#}
+                        {#     window.location.href = "/staff/";#}
+                        {# }else#}
+                        {# {#}
+                        {#     window.location.href = "/modules/";#}
+                        {# }#}
+
+                        window.location.href = "/companies/";
                     });
 
                 } else {
